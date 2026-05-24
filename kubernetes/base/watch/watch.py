@@ -98,7 +98,7 @@ class Watch:
                 sock = getattr(conn, 'sock', None) if conn else None
                 if sock:
                     sock.shutdown(socket.SHUT_RDWR)
-            except Exception:
+            except OSError:
                 pass
 
 
