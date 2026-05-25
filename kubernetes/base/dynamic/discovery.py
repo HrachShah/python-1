@@ -62,7 +62,7 @@ class Discoverer:
                 if self._cache.get('library_version') != __version__:
                     # Version mismatch, need to refresh cache
                     self.invalidate_cache()
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 logging.error("load cache error: %s", e)
                 self.invalidate_cache()
         self._load_server_info()
