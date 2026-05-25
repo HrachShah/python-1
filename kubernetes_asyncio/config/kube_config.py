@@ -344,7 +344,7 @@ class KubeConfigLoader(object):
                 logger.error('exec: missing token or clientCertificateData '
                              'field in plugin output')
             return True
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logger.error(str(e))
 
     def _load_user_token(self):
