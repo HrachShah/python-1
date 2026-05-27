@@ -184,7 +184,7 @@ class SharedInformer:
         for fn in handlers:
             try:
                 fn(obj)
-            except Exception:
+            except TypeError:
                 logger.exception(
                     "Exception in informer handler for %s", event_type
                 )
