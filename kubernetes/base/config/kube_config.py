@@ -471,7 +471,7 @@ class KubeConfigLoader:
             if 'expirationTimestamp' in status:
                 self.expiry = parse_rfc3339(status['expirationTimestamp'])
             return True
-        except Exception as e:
+        except (ConfigException, OSError, ValueError, KeyError) as e:
             logging.error(str(e))
 
     def _load_user_token(self):
