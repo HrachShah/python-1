@@ -70,7 +70,7 @@ def get_refs():
 def file_passes(filename, refs, regexs):
     try:
         f = open(filename)
-    except Exception as exc:
+    except OSError as exc:
         print("Unable to open %s: %s" % (filename, exc), file=verbose_out)
         return False
 
