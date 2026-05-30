@@ -200,7 +200,7 @@ def get_pods_metrics_in_all_namespaces(api_client, namespaces, label_selector=No
     for ns in namespaces:
         try:
             results[ns] = get_pods_metrics(api_client, ns, label_selector)
-        except Exception as e:
+        except OSError as e:
             results[ns] = {
                 'kind': 'Error',
                 'error': str(e)
