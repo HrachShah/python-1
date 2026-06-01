@@ -74,7 +74,7 @@ class Discoverer:
         try:
             with open(self.__cache_file, 'w') as f:
                 json.dump(self._cache, f, cls=CacheEncoder)
-        except Exception:
+        except OSError:
             # Failing to write the cache isn't a big enough error to crash on
             pass
 
