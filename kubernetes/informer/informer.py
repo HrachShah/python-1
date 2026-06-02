@@ -184,7 +184,7 @@ class SharedInformer:
         for fn in handlers:
             try:
                 fn(obj)
-            except Exception:
+            except (TypeError, ValueError, RuntimeError):
                 logger.exception(
                     "Exception in informer handler for %s", event_type
                 )
@@ -249,7 +249,7 @@ class SharedInformer:
             if self._resource_version is None:
                 try:
                     self._initial_list()
-                except Exception as exc:
+                except (ApiException, OSError, ValueError, TypeError) as exc:
                     logger.exception("Error during initial list; retrying")
                     self._fire(ERROR, exc)
                     self._stop_event.wait(timeout=5)
@@ -308,7 +308,7 @@ class SharedInformer:
                         exc.status,
                     )
                 self._fire(ERROR, exc)
-            except Exception as exc:
+            except (ApiException, OSError, ValueError, TypeError) as exc:
                 logger.exception("Unexpected error in watch loop; reconnecting")
                 self._fire(ERROR, exc)
             finally:
@@ -337,6 +337,6 @@ class SharedInformer:
                 logger.debug("Informer resync triggered")
                 try:
                     self._initial_list()
-                except Exception as exc:
+                except (ApiException, OSError, ValueError, TypeError) as exc:
                     logger.exception("Error during resync list; continuing")
                     self._fire(ERROR, exc)
