@@ -383,16 +383,23 @@ class KubeConfigLoader:
         config = Configuration()
 
         if 'idp-certificate-authority-data' in provider['config']:
-            ca_cert = tempfile.NamedTemporaryFile(delete=True)
-
             cert = base64.b64decode(
                 provider['config']['idp-certificate-authority-data']
             ).decode('utf-8')
 
-            with open(ca_cert.name, 'w') as fh:
+            # NamedTemporaryFile(delete=True) would have the OS delete the
+            # file as soon as the local `ca_cert` object is garbage
+            # collected (which may happen before config.ssl_ca_cert is read
+            # by the request below, or by any later user of `config`).
+            # Pass delete=False so the file persists for the lifetime of
+            # config.ssl_ca_cert; the process-wide _cleanup_temp_files
+            # atexit handler will reclaim it on interpreter shutdown.
+            fd, ca_cert_path = tempfile.mkstemp()
+            os.close(fd)
+            with open(ca_cert_path, 'w') as fh:
                 fh.write(cert)
 
-            config.ssl_ca_cert = ca_cert.name
+            config.ssl_ca_cert = ca_cert_path
 
         elif 'idp-certificate-authority' in provider['config']:
             config.ssl_ca_cert = provider['config']['idp-certificate-authority']
