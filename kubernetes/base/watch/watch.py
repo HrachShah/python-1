@@ -98,7 +98,12 @@ class Watch:
                 sock = getattr(conn, 'sock', None) if conn else None
                 if sock:
                     sock.shutdown(socket.SHUT_RDWR)
-            except Exception:
+            except (OSError, AttributeError):
+                # The chained getattr() walks through self._resp -> .connection
+                # -> .sock, any of which may be None on a half-closed response
+                # and raises AttributeError. socket.shutdown on a closed or
+                # half-shutdown socket raises OSError. Both are expected during
+                # the unblock-the-read workaround and must not propagate.
                 pass
 
 
