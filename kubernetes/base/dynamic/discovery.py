@@ -25,7 +25,7 @@ from json.decoder import JSONDecodeError
 from urllib3.exceptions import ProtocolError, MaxRetryError
 
 from kubernetes import __version__
-from .exceptions import NotFoundError, ResourceNotFoundError, ResourceNotUniqueError, ApiException, ServiceUnavailableError
+from .exceptions import NotFoundError, ResourceNotFoundError, ResourceNotUniqueError, ApiException, ServiceUnavailableError  # noqa: F401
 from .resource import Resource, ResourceList
 
 
@@ -267,8 +267,27 @@ class LazyDiscoverer(Discoverer):
                     try:
                         resourcePart.resources = self.get_resources_for_api_version(
                             prefix, group, part, resourcePart.preferred)
-                    except NotFoundError:
-                        raise ResourceNotFoundError
+                    except (NotFoundError, ApiException, OSError, ValueError, TypeError) as exc:
+                        # NotFoundError: the 404 case this block is
+                        # explicitly designed to translate.
+                        # ApiException: other HTTP errors (403, 500, 503)
+                        # from the cluster API server can also leave us
+                        # without a resources list for this groupVersion.
+                        # OSError: socket-level failures during the API
+                        # request (DNS, connection reset, TLS handshake).
+                        # ValueError: malformed JSON or invalid URL
+                        # construction inside the request layer.
+                        # TypeError: invalid kwarg shape passed to the
+                        # client request helper (regression guard).
+                        # The bare except previously also caught
+                        # KeyboardInterrupt and SystemExit, which should
+                        # propagate rather than be turned into a 'no such
+                        # resource' answer, and silently swallowed any
+                        # future bug introduced into the request path.
+                        # The narrow tuple keeps the documented 'not in
+                        # this cluster' behavior for the five real
+                        # failure modes while letting real bugs surface.
+                        raise ResourceNotFoundError from exc
 
                     self._cache['resources'][prefix][group][version] = resourcePart
                     self.__update_cache = True
