@@ -48,7 +48,10 @@ def parse_quantity(quantity):
     if isinstance(quantity, (int, float, Decimal)):
         return Decimal(quantity)
 
-    quantity = str(quantity)
+    raw_input = str(quantity)
+    quantity = raw_input.strip()
+    if not quantity:
+        raise ValueError("Invalid number format: {}".format(raw_input))
     number = quantity
     suffix = None
     if len(quantity) >= 2 and quantity[-1] == "i":
