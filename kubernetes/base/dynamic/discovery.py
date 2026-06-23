@@ -62,7 +62,7 @@ class Discoverer:
                 if self._cache.get('library_version') != __version__:
                     # Version mismatch, need to refresh cache
                     self.invalidate_cache()
-            except Exception as e:
+            except (OSError, ValueError, TypeError) as e:
                 logging.error("load cache error: %s", e)
                 self.invalidate_cache()
         self._load_server_info()
@@ -74,7 +74,7 @@ class Discoverer:
         try:
             with open(self.__cache_file, 'w') as f:
                 json.dump(self._cache, f, cls=CacheEncoder)
-        except Exception:
+        except (OSError, TypeError):
             # Failing to write the cache isn't a big enough error to crash on
             pass
 

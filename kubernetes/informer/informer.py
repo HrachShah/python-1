@@ -249,7 +249,7 @@ class SharedInformer:
             if self._resource_version is None:
                 try:
                     self._initial_list()
-                except Exception as exc:
+                except (KeyError, AttributeError, ValueError, TypeError) as exc:
                     logger.exception("Error during initial list; retrying")
                     self._fire(ERROR, exc)
                     self._stop_event.wait(timeout=5)
@@ -308,9 +308,12 @@ class SharedInformer:
                         exc.status,
                     )
                 self._fire(ERROR, exc)
-            except Exception as exc:
+            except (KeyError, AttributeError, ValueError, TypeError, OSError) as exc:
                 logger.exception("Unexpected error in watch loop; reconnecting")
                 self._fire(ERROR, exc)
+            except Exception as exc:
+                # Let unexpected errors (programming bugs, KeyboardInterrupt, etc.) propagate
+                raise
             finally:
                 # Capture the most recent resource version seen by the Watch
                 # (updated on every ADDED/MODIFIED/DELETED/BOOKMARK event) so
@@ -337,6 +340,6 @@ class SharedInformer:
                 logger.debug("Informer resync triggered")
                 try:
                     self._initial_list()
-                except Exception as exc:
+                except (KeyError, AttributeError, ValueError, TypeError) as exc:
                     logger.exception("Error during resync list; continuing")
                     self._fire(ERROR, exc)
