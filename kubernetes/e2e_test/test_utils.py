@@ -718,6 +718,17 @@ class TestUtilsUnitTests(unittest.TestCase):
         self.assertEqual(quantity.parse_quantity("1000k"), Decimal(1_000_000))
         self.assertEqual(quantity.parse_quantity("500k"), Decimal(500_000))
 
+        # == whitespace handling ==
+        # Leading and trailing whitespace are stripped; whitespace-only and
+        # empty inputs raise ValueError.
+        self.assertEqual(quantity.parse_quantity("  1Ki"), Decimal(1024))
+        self.assertEqual(quantity.parse_quantity("1Ki  "), Decimal(1024))
+        self.assertRaises(ValueError, lambda: quantity.parse_quantity("  "))
+        self.assertRaises(ValueError, lambda: quantity.parse_quantity(""))
+        self.assertRaises(
+            ValueError, lambda: quantity.parse_quantity("  1000foo")
+        )
+
     def test_format_quantity(self):
         """Unit test for quantity.format_quantity. Testing the different SI suffixes and
         function should return the expected string"""
