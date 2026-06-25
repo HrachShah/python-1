@@ -55,8 +55,9 @@ class LeaderElection:
             logger.info("{} successfully acquired lease".format(self.election_config.lock.identity))
 
             # Start leading and call OnStartedLeading()
-            threading.daemon = True
-            threading.Thread(target=self.election_config.onstarted_leading).start()
+            leader_thread = threading.Thread(target=self.election_config.onstarted_leading)
+            leader_thread.daemon = True
+            leader_thread.start()
 
             self.renew_loop()
 

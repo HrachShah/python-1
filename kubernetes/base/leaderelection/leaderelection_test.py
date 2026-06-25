@@ -266,5 +266,50 @@ class MockResourceLock:
             self.lock.release()
 
 
+class LeaderElectionDaemonThreadTest(unittest.TestCase):
+    def test_onstarted_leading_thread_is_daemon(self):
+        """The thread LeaderElection.run() starts to invoke onstarted_leading
+        must be a daemon thread, so it does not block Python shutdown when
+        onstarted_leading is a long-running callback.
+
+        Regression test: the prior code set threading.daemon = True (a
+        module attribute, not the thread), so the actual Thread had
+        daemon=False and could keep the interpreter alive after main exits.
+        """
+        # Wrap Thread to capture the started thread's daemon flag.
+        original_thread = threading.Thread
+        captured = []
+        class CapturingThread(original_thread):
+            def start(self):
+                captured.append(self.daemon)
+                super().start()
+        threading.Thread = CapturingThread
+        try:
+            started = []
+            mock_lock = MockResourceLock(
+                "mock", "mock_namespace", "mock", thread_lock,
+                on_create=lambda: None, on_update=lambda: None,
+                on_change=lambda: None)
+            config = electionconfig.Config(
+                lock=mock_lock, lease_duration=2.5, renew_deadline=2,
+                retry_period=1.5,
+                onstarted_leading=lambda: started.append(1),
+                onstopped_leading=lambda: None)
+            le = leaderelection.LeaderElection(config)
+            # Short-circuit past acquire/renew_loop so we only exercise
+            # the thread creation branch.
+            le.acquire = lambda: True
+            le.renew_loop = lambda: None
+            le.run()
+            time.sleep(0.2)  # let the inner thread finish
+        finally:
+            threading.Thread = original_thread
+        self.assertEqual(captured, [True],
+            msg="inner leader thread was started with daemon=%r, expected True" % (
+                captured[0] if captured else None))
+        self.assertEqual(started, [1],
+            msg="onstarted_leading was not invoked")
+
+
 if __name__ == '__main__':
     unittest.main()
