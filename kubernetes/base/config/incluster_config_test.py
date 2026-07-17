@@ -108,6 +108,16 @@ class InClusterConfigTest(unittest.TestCase):
         self.assertEqual('bearer ' + _TEST_NEW_TOKEN, loader.token)
         self.assertGreater(loader.token_expires_at, old_token_expires_at)
 
+    def test_refresh_token_strips_trailing_newline(self):
+        loader = self.get_test_loader(
+            token_filename=self._create_file_with_temp_content(
+                _TEST_TOKEN + "\n"))
+        config = Configuration()
+        loader.load_and_set(config)
+
+        self.assertEqual('bearer ' + _TEST_TOKEN,
+                         config.get_api_key_with_prefix('BearerToken'))
+
     def test_load_incluster_sets_request_authorization_header(self):
         from kubernetes.client import ApiClient
         cert_filename = self._create_file_with_temp_content(_TEST_CERT)
