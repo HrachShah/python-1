@@ -78,7 +78,7 @@ class InClusterConfigLoader(object):
             raise ConfigException(
                 "Service certification file does not exist.")
 
-        with open(self._cert_filename) as f:
+        with open(self._cert_filename, encoding="utf-8") as f:
             if not f.read():
                 raise ConfigException("Cert file exists but empty.")
 
