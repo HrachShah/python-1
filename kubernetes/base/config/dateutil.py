@@ -86,6 +86,11 @@ def parse_rfc3339(s):
             hour *= -1
         if tz_groups[2]:
             minute = int(tz_groups[2])
+        if abs(hour) > 23 or minute > 59:
+            raise ValueError(
+                f"Invalid timezone offset in RFC3339 string {s!r}: "
+                f"offset {groups[7]!r} is outside the allowed range"
+            )
         tz = TimezoneInfo(hour, minute)
     
     try:
