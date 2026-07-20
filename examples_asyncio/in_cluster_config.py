@@ -72,7 +72,7 @@ async def main():
             for i in ret.items:
                 print(i.status.pod_ip, i.metadata.namespace, i.metadata.name)
 
-        except Exception:
+        except (OSError, asyncio.TimeoutError):
             traceback.print_exc(file=sys.stdout)
 
         finally:

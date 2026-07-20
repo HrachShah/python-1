@@ -471,7 +471,7 @@ class KubeConfigLoader:
             if 'expirationTimestamp' in status:
                 self.expiry = parse_rfc3339(status['expirationTimestamp'])
             return True
-        except Exception as e:
+        except (OSError, ValueError, TypeError, KeyError) as e:
             logging.error(str(e))
 
     def _load_user_token(self):
@@ -592,10 +592,10 @@ class ConfigNode:
                 % self.name)
         result = None
         for v in self.value:
-            if 'name' not in v:
+            if not isinstance(v, dict) or 'name' not in v:
                 raise ConfigException(
                     'Invalid kube-config file. '
-                    'Expected all values in %s list to have \'name\' key'
+                    'Expected all values in %s list to be objects with a \'name\' key'
                     % self.name)
             if v['name'] == name:
                 if result is None:

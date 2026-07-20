@@ -67,11 +67,11 @@ def create_from_directory(
     elif not os.path.isdir(yaml_dir):
         raise ValueError("`yaml_dir` argument must be a path to directory")
 
-    files = [
-        os.path.join(yaml_dir, i)
-        for i in os.listdir(yaml_dir)
-        if os.path.isfile(os.path.join(yaml_dir, i))
-    ]
+    files = sorted(
+        os.path.join(yaml_dir, entry)
+        for entry in os.listdir(yaml_dir)
+        if os.path.isfile(os.path.join(yaml_dir, entry))
+    )
     if not files:
         raise ValueError("`yaml_dir` contains no files")
 

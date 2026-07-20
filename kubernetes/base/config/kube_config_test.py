@@ -340,7 +340,13 @@ class TestConfigNode(BaseTestCase):
     def test_get_with_name_on_invalid_object(self):
         self.expect_exception(
             lambda: self.node['key2'].get_with_name('no-name'),
-            "Expected all values in test_obj/key2 list to have \'name\' key")
+            "Expected all values in test_obj/key2 list to be objects with a \'name\' key")
+
+    def test_get_with_name_rejects_scalar_values(self):
+        node = ConfigNode("test_obj/scalars", [{"name": "valid"}, "invalid"])
+        self.expect_exception(
+            lambda: node.get_with_name("missing"),
+            "Expected all values in test_obj/scalars list to be objects with a 'name' key")
 
     def test_get_with_name_on_non_list_object(self):
         self.expect_exception(
