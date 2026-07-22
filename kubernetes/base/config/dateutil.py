@@ -53,7 +53,9 @@ def parse_rfc3339(s):
         if not s.tzinfo:
             return s.replace(tzinfo=UTC)
         return s
-    
+    if not isinstance(s, str):
+        raise ValueError(f"Invalid RFC3339 datetime: {s!r} (expected a string)")
+
     m = _re_rfc3339.fullmatch(s.strip())
     if m is None:
         raise ValueError(

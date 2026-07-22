@@ -69,6 +69,11 @@ class DateUtilTest(unittest.TestCase):
                                     TimezoneInfo(-2, 30))),
             "2017-07-25T07:14:21Z")
 
+    def test_parse_rfc3339_rejects_non_string_values(self):
+        for invalid_input in (None, 123, b"2025-12-02T13:37:00Z"):
+            with self.assertRaisesRegex(ValueError, "expected a string"):
+                parse_rfc3339(invalid_input)
+
     def test_parse_rfc3339_invalid_formats(self):
         """Test that invalid RFC3339 formats raise ValueError"""
         invalid_inputs = [
