@@ -100,8 +100,8 @@ class InClusterConfigLoader(object):
         client_configuration.refresh_api_key_hook = _refresh_api_key
 
     def _read_token_file(self):
-        with open(self._token_filename) as f:
-            content = f.read()
+        with open(self._token_filename, encoding="utf-8") as f:
+            content = f.read().strip()
             if not content:
                 raise ConfigException("Token file exists but empty.")
             self.token = "bearer " + content
