@@ -20,9 +20,10 @@ import re
 class TimezoneInfo(datetime.tzinfo):
     def __init__(self, h, m):
         self._name = "UTC"
-        if h != 0 and m != 0:
-            self._name += "%+03d:%2d" % (h, m)
-        self._delta = datetime.timedelta(hours=h, minutes=math.copysign(m, h))
+        sign = -1 if h < 0 or (h == 0 and m < 0) else 1
+        if h != 0 or m != 0:
+            self._name += "%+03d:%02d" % (h, abs(m))
+        self._delta = datetime.timedelta(hours=h, minutes=sign * abs(m))
 
     def utcoffset(self, dt):
         return self._delta
@@ -80,13 +81,10 @@ def parse_rfc3339(s):
                 f"format (±HH:MM)"
             )
         tz_groups = tz_match.groups()
-        hour = int(tz_groups[1])
-        minute = 0
-        if tz_groups[0] == "-":
-            hour *= -1
-        if tz_groups[2]:
-            minute = int(tz_groups[2])
-        if abs(hour) > 23 or minute > 59:
+        sign = -1 if tz_groups[0] == "-" else 1
+        hour = sign * int(tz_groups[1])
+        minute = sign * int(tz_groups[2] or 0)
+        if abs(hour) > 23 or abs(minute) > 59:
             raise ValueError(
                 f"Invalid timezone offset in RFC3339 string {s!r}: "
                 f"offset {groups[7]!r} is outside the allowed range"
