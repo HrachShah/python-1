@@ -1072,6 +1072,24 @@ class TestKubeConfigLoader(BaseTestCase):
         )
 
 
+    def test_oidc_fails_if_token_is_not_a_string(self):
+        config = copy.deepcopy(self.TEST_KUBE_CONFIG)
+        config["users"].append({
+            "name": "oidc_non_string_token",
+            "user": {
+                "auth-provider": {
+                    "name": "oidc",
+                    "config": {"id-token": {"unexpected": "mapping"}},
+                },
+            },
+        })
+        loader = KubeConfigLoader(
+            config_dict=config,
+            active_context="oidc_non_string_token",
+        )
+        self.assertIsNone(loader._load_oid_token("oidc_non_string_token"))
+
+
     def test_user_pass(self):
         expected = FakeConfig(host=TEST_HOST, token=TEST_BASIC_TOKEN)
         actual = FakeConfig()

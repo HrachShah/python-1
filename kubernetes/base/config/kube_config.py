@@ -346,8 +346,8 @@ class KubeConfigLoader:
         reserved_characters = frozenset(["=", "+", "/"])
         token = provider['config']['id-token']
 
-        if any(char in token for char in reserved_characters):
-            # Invalid jwt, as it contains url-unsafe chars
+        if not isinstance(token, str) or any(char in token for char in reserved_characters):
+            # Invalid jwt, as it contains url-unsafe chars or has the wrong type.
             return
 
         parts = token.split('.')
