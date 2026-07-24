@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import base64
+import copy
 import datetime
 import io
 import json
