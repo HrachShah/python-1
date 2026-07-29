@@ -118,4 +118,6 @@ class ExecProvider:
             raise ConfigException(
                 'exec: plugin api version %s does not match %s' %
                 (data['apiVersion'], self.api_version))
+        if not isinstance(data['status'], dict):
+            raise ConfigException('exec: malformed response. status must be an object')
         return data['status']

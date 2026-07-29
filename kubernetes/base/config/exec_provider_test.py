@@ -116,6 +116,21 @@ class ExecProviderTest(unittest.TestCase):
                           context.exception.args[0])
 
     @mock.patch('subprocess.Popen')
+    def test_status_must_be_an_object(self, mock):
+        instance = mock.return_value
+        instance.wait.return_value = 0
+        instance.communicate.return_value = ("""
+        {
+            "apiVersion": "client.authentication.k8s.io/v1beta1",
+            "kind": "ExecCredential",
+            "status": null
+        }
+        """, '')
+
+        with self.assertRaisesRegex(ConfigException, 'status must be an object'):
+            ExecProvider(self.input_ok, None).run()
+
+    @mock.patch('subprocess.Popen')
     def test_mismatched_api_version(self, mock):
         instance = mock.return_value
         instance.wait.return_value = 0
