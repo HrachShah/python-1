@@ -110,6 +110,8 @@ class ExecProvider:
         except ValueError as de:
             raise ConfigException(
                 'exec: failed to decode process output: %s' % de)
+        if not isinstance(data, dict):
+            raise ConfigException('exec: malformed response. response must be an object')
         for key in ('apiVersion', 'kind', 'status'):
             if key not in data:
                 raise ConfigException(

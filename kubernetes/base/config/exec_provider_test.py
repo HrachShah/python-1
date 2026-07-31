@@ -82,6 +82,15 @@ class ExecProviderTest(unittest.TestCase):
                       context.exception.args[0])
 
     @mock.patch('subprocess.Popen')
+    def test_non_object_output(self, mock):
+        instance = mock.return_value
+        instance.wait.return_value = 0
+        instance.communicate.return_value = ('[]', '')
+
+        with self.assertRaisesRegex(ConfigException, 'response must be an object'):
+            ExecProvider(self.input_ok, None).run()
+
+    @mock.patch('subprocess.Popen')
     def test_missing_output_keys(self, mock):
         instance = mock.return_value
         instance.wait.return_value = 0
