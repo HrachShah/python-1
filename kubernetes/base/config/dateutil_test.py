@@ -87,6 +87,7 @@ class DateUtilTest(unittest.TestCase):
             "2025-12-02Z13:37:00",         # Timezone before time
             "2025-12-02T13:37:00+24:00",   # Hour outside timezone range
             "2025-12-02T13:37:00-03:60",   # Minute outside timezone range
+            "2025-12-02T13:37:00+03:00junk", # Trailing timezone text
         ]
 
         for invalid_input in invalid_inputs:
