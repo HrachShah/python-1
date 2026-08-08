@@ -103,6 +103,11 @@ class DateUtilTest(unittest.TestCase):
             self.assertIn("YYYY-MM-DD", error_msg)
             self.assertIn("expected", error_msg)
 
+    def test_parse_rfc3339_rejects_trailing_timezone_text(self):
+        for value in ("2017-07-25T04:44:21+03:00abc", "2017-07-25T04:44:21-5:30xyz"):
+            with self.assertRaises(ValueError):
+                parse_rfc3339(value)
+
     def test_parse_rfc3339_handles_none_from_timezone_regex(self):
         """Test parse_rfc3339 handles timezone regex returning None.
 

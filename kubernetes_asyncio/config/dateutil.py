@@ -42,7 +42,7 @@ _re_rfc3339 = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d)"        # full-date
                          r"(\d\d):(\d\d):(\d\d)([.,]\d+)?"  # partial-time
                          r"([zZ ]|[-+]\d\d?:\d\d)?",        # time-offset
                          re.VERBOSE + re.IGNORECASE)
-_re_timezone = re.compile(r"([-+])(\d\d?):?(\d\d)?")
+_re_timezone = re.compile(r"([-+])(\d\d?):?(\d\d)?$")
 
 MICROSEC_PER_SEC = 1000000
 
