@@ -18,11 +18,13 @@ import re
 
 
 class TimezoneInfo(datetime.tzinfo):
-    def __init__(self, h, m):
+    def __init__(self, h, m, sign=None):
         self._name = "UTC"
         if h != 0 and m != 0:
             self._name += "%+03d:%2d" % (h, m)
-        self._delta = datetime.timedelta(hours=h, minutes=math.copysign(m, h))
+        if sign is None:
+            sign = -1 if h < 0 else 1
+        self._delta = datetime.timedelta(hours=h, minutes=sign * m)
 
     def utcoffset(self, dt):
         return self._delta
@@ -86,7 +88,7 @@ def parse_rfc3339(s):
             hour *= -1
         if tz_groups[2]:
             minute = int(tz_groups[2])
-        tz = TimezoneInfo(hour, minute)
+        tz = TimezoneInfo(hour, minute, sign=-1 if tz_groups[0] == "-" else 1)
     
     try:
         return datetime.datetime(

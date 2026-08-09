@@ -54,6 +54,11 @@ class DateUtilTest(unittest.TestCase):
         self._parse_rfc3339_test("2017-07-25T04:44:21.005-03:00",
                                  2017, 7, 25, 7, 44, 21, 5000)
 
+    def test_parse_rfc3339_preserves_negative_subhour_offsets(self):
+        actual = parse_rfc3339("2017-07-25T04:44:21-00:30")
+
+        self.assertEqual(actual.utcoffset().total_seconds(), -30 * 60)
+
     def test_format_rfc3339(self):
         self.assertEqual(
             format_rfc3339(datetime(2017, 7, 25, 4, 44, 21, 0, UTC)),
